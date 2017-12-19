@@ -20,8 +20,286 @@ public class Main {
 
     public static void main(String[] args) {
         Main m = new Main();
-        m.questionSeven();
+        m.questionEleven();
+    }
 
+    public void questionEleven() {
+        String fileName = System.getProperty("user.dir") + "\\src\\advent\\code\\questionEleven.txt";
+
+        String line;
+
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while ((line = bufferedReader.readLine()) != null) {
+
+            }
+            bufferedReader.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");
+        } catch (IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        }
+    }
+
+    public void questionTen() {
+        String fileName = System.getProperty("user.dir") + "\\src\\advent\\code\\questionTen.txt";
+        int[] nums = new int[256];
+        for (int index = 0; index < nums.length; index++) {
+            nums[index] = index;
+        }
+        int skip = 0;
+        int position = 0;
+        int length = 0;
+        int store = 0;
+        String line;
+
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] jumpStrings = line.split(",");
+                for (int index = 0; index < jumpStrings.length; index++) {
+                    length = Integer.parseInt(jumpStrings[index]);
+                    for (int bindex = 0; bindex < (length+1)/2; bindex++) {
+                        int leftPos = (position + bindex) % nums.length;
+                        int rightPos = (position + length - 1 - bindex) % nums.length;
+                        store = nums[leftPos];
+                        nums[leftPos] = nums[rightPos];
+                        nums[rightPos] = store;
+                    }
+                    position += length + skip;
+                    position = position % nums.length;
+                    skip++;
+                }
+                System.out.println(nums[0] * nums[1]);
+
+                for (int index = 0; index < nums.length; index++) {
+                    nums[index] = index;
+                }
+                skip = 0;
+                position = 0;
+                length = 0;
+                store = 0;
+                int[] jumps = new int[line.length() + 5];
+                for (int index = 0; index < line.length(); index++) {
+                    int c = line.charAt(index);
+                    jumps[index] = c;
+                }
+                jumps[line.length()] = 17;
+                jumps[line.length() + 1] = 31;
+                jumps[line.length() + 2] = 73;
+                jumps[line.length() + 3] = 47;
+                jumps[line.length() + 4] = 23;
+
+                for (int counter = 0; counter < 64; counter++) {
+                    for (int index = 0; index < jumps.length; index++) {
+                        length = jumps[index];
+                        for (int bindex = 0; bindex < (length+1)/2; bindex++) {
+                            int leftPos = (position + bindex) % nums.length;
+                            int rightPos = (position + length - 1 - bindex) % nums.length;
+                            store = nums[leftPos];
+                            nums[leftPos] = nums[rightPos];
+                            nums[rightPos] = store;
+                        }
+                        position += length + skip;
+                        position = position % nums.length;
+                        skip++;
+                    }
+                }
+
+                int[] denseHash = new int[16];
+                for (int index = 0; index < 16; index++) {
+                    denseHash[index] = nums[index * 16];
+                    for (int bindex = 1; bindex < 16; bindex++) {
+                        denseHash[index] ^= nums[index * 16 + bindex];
+                    }
+                }
+
+                String knot = "";
+                for (int index = 0; index < denseHash.length; index++) {
+                    String hex =Integer.toHexString(denseHash[index]);
+                    if (hex.length() == 1) {
+                        hex = "0" + hex;
+                    }
+                    knot += hex;
+                }
+                System.out.println(knot);
+            }
+            bufferedReader.close();
+            System.out.println(nums[0] * nums[1]);
+        } catch (FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");
+        } catch (IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        }
+    }
+
+    public void questionNine() {
+        String fileName = System.getProperty("user.dir") + "\\src\\advent\\code\\questionNine.txt";
+        int weight = 0;
+        int total = 0;
+        int garbageTotal = 0;
+        boolean inGarbage = false;
+        String line;
+
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while ((line = bufferedReader.readLine()) != null) {
+                for (int index = 0; index < line.length(); index++) {
+                    char c = line.charAt(index);
+                    switch (c) {
+                        case '{':
+                            if (!inGarbage) {
+                                weight++;
+                            } else {
+                                garbageTotal++;
+                            }
+                            break;
+                        case '}':
+                            if (!inGarbage) {
+                                total += weight;
+                                weight--;
+                            } else {
+                                garbageTotal++;
+                            }
+                            break;
+                        case '<':
+                            if (inGarbage) {
+                                garbageTotal++;
+                            }
+                            inGarbage = true;
+                            break;
+                        case '>':
+                            inGarbage = false;
+                            break;
+                        case '!':
+                            index++;
+                            break;
+                        default:
+                            if (inGarbage) {
+                                garbageTotal++;
+                            }
+                    }
+                }
+            }
+            bufferedReader.close();
+            System.out.println(total);
+            System.out.println(garbageTotal);
+        } catch (FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");
+        } catch (IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        }
+    }
+
+    public void questionEight() {
+        String fileName = System.getProperty("user.dir") + "\\src\\advent\\code\\questionEight.txt";
+        String pattern = "([a-z]+) (inc|dec)? (-?[0-9]+) if ([a-z]+) ([!><=]+) (-?[0-9]+)";
+        Pattern p = Pattern.compile(pattern);
+        HashMap<String, Integer> registerMap = new HashMap<String, Integer>();
+        String line;
+
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            Integer max = Integer.MIN_VALUE;
+            while ((line = bufferedReader.readLine()) != null) {
+                Matcher m = p.matcher(line);
+                if (m.matches()) {
+                    String register = m.group(1);
+                    String operation = m.group(2);
+                    Integer delta = Integer.parseInt(m.group(3));
+                    String variable = m.group(4);
+                    String comparator = m.group(5);
+                    Integer value = Integer.parseInt(m.group(6));
+                    if (!registerMap.containsKey(register)) {
+                        registerMap.put(register, 0);
+                    }
+                    if (!registerMap.containsKey(variable)) {
+                        registerMap.put(variable, 0);
+                    }
+                    switch(comparator) {
+                        case ">":
+                            if (registerMap.get(variable) > value) {
+                                if (operation.equals("inc")) {
+                                    registerMap.put(register, registerMap.get(register) + delta);
+                                } else if (operation.equals("dec")) {
+                                    registerMap.put(register, registerMap.get(register) - delta);
+                                }
+                            }
+                            break;
+                        case "<":
+                            if (registerMap.get(variable) < value) {
+                                if (operation.equals("inc")) {
+                                    registerMap.put(register, registerMap.get(register) + delta);
+                                } else if (operation.equals("dec")) {
+                                    registerMap.put(register, registerMap.get(register) - delta);
+                                }
+                            }
+                            break;
+                        case ">=":
+                            if (registerMap.get(variable) >= value) {
+                                if (operation.equals("inc")) {
+                                    registerMap.put(register, registerMap.get(register) + delta);
+                                } else if (operation.equals("dec")) {
+                                    registerMap.put(register, registerMap.get(register) - delta);
+                                }
+                            }
+                            break;
+                        case "<=":
+                            if (registerMap.get(variable) <= value) {
+                                if (operation.equals("inc")) {
+                                    registerMap.put(register, registerMap.get(register) + delta);
+                                } else if (operation.equals("dec")) {
+                                    registerMap.put(register, registerMap.get(register) - delta);
+                                }
+                            }
+                            break;
+                        case "==":
+                            if (registerMap.get(variable).equals(value)) {
+                                if (operation.equals("inc")) {
+                                    registerMap.put(register, registerMap.get(register) + delta);
+                                } else if (operation.equals("dec")) {
+                                    registerMap.put(register, registerMap.get(register) - delta);
+                                }
+                            }
+                            break;
+                        case "!=":
+                            if (!registerMap.get(variable).equals(value)) {
+                                if (operation.equals("inc")) {
+                                    registerMap.put(register, registerMap.get(register) + delta);
+                                } else if (operation.equals("dec")) {
+                                    registerMap.put(register, registerMap.get(register) - delta);
+                                }
+                            }
+                            break;
+                    }
+                    if (registerMap.get(register) > max) {
+                        max = registerMap.get(register);
+                    }
+                }
+            }
+            bufferedReader.close();
+            System.out.println(max);
+            max = Integer.MIN_VALUE;
+            for (String key : registerMap.keySet()) {
+                Integer v = registerMap.get(key);
+                if (v > max) {
+                    max = v;
+                }
+            }
+            System.out.println(max);
+
+        } catch (FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");
+        } catch (IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        }
     }
 
     public void questionSeven() {
